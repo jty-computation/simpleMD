@@ -1,2 +1,2 @@
 # simpleMD
-Molecular dynamics for Warm Dense Matter (WDM) project
+Molecular dynamics code for Warm Dense Matter (WDM) project
