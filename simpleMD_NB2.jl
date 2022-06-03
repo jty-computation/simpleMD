@@ -24,7 +24,7 @@ end
 # ╔═╡ fa6b6d6c-601e-4aec-82dd-6983a978cfc5
 mutable struct Particle 		# Define Particle Type
 	# Charge
-	q::Float64  
+	q::Float64  				# TODO change to species
 	# Mass
 	m::Float64
 	# Kinematic Variables
@@ -33,7 +33,7 @@ mutable struct Particle 		# Define Particle Type
 	vel::Vector{Float64}
 	acc::Vector{Float64}
 	# Energy
-	K::Float64
+	K::Float64 					# Calc. frm (m,v),(funct <- particle) =>K
 	U::Float64
 
 	# Inner Constructor Methods
@@ -57,20 +57,21 @@ begin
 end
 
 # ╔═╡ 57f4f0ee-effd-4ffa-90fb-c3a9f0c86fc0
+# PERFORMANCE Rewrite to avoid global vars
 begin
 	# PARAMETERS
 	# Define box size
-	L = 100.0
+	const L           = 100.0
 	
-	Δt 		  = .1
-	timesteps = 100
-	tf 		  = timesteps * Δt
+	const Δt 		  = .1
+	const timesteps   = 100
+	const tf 		  = timesteps * Δt
 end
 
 # ╔═╡ 761317ee-bfb6-4e4d-b21b-d09eaef30333
 # Instantiate containers for calculated nergies
 # TODO: Change to file that can have new values concatenated in
-Us = Ks = zeros(timesteps, length(particles))
+UNet = KNet = zeros(timesteps)
 
 # ╔═╡ 510aeb52-f74a-460d-8469-327f41178433
 function force(Pi::Particle,Pj::Particle)
@@ -99,6 +100,7 @@ end
 
 # ╔═╡ a769305e-e912-4fd0-93e4-96c748a5a4bb
 function fpot(Pi::Particle, Pj::Particle, L::Float64)
+	# Returns a tuple containing the force::vector and energy of interaction
 	disp        = Pi.pos - Pj.pos	  				# displacment (w/ PBC)
 	dist		= mod(mag(Pi.pos - Pj.pos), L/2)
 	F			= (Pi.q*Pj.q)*disp/dist^3     		# Return calculated force
@@ -135,9 +137,6 @@ end
 
 # ╔═╡ f8be6357-dc86-47e4-baac-719ed94b3655
 step!(force, potential, particles, L)
-
-# ╔═╡ 890ba6fd-e1c2-4ffb-b052-1d2546e0dd97
-
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1146,6 +1145,5 @@ version = "0.9.1+5"
 # ╠═a769305e-e912-4fd0-93e4-96c748a5a4bb
 # ╠═6f5b23c6-d38e-41df-aa78-9ab38fd4f9c4
 # ╠═f8be6357-dc86-47e4-baac-719ed94b3655
-# ╠═890ba6fd-e1c2-4ffb-b052-1d2546e0dd97
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
