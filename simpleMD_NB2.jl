@@ -24,29 +24,53 @@ end
 # ╔═╡ fa6b6d6c-601e-4aec-82dd-6983a978cfc5
 mutable struct Particle 		# Define Particle Type
 	# Charge
-	q::Real    
+	q::Float64  
 	# Mass
-	m::Real
+	m::Float64
 	# Kinematic Variables
-	pos::Vector
-	vel::Vector
-	acc::Vector
+	# TODO define types and conversions for fields
+	pos::Vector{Float64}
+	vel::Vector{Float64}
+	acc::Vector{Float64}
+	# Energy
+	K::Float64
+	U::Float64
+
+	# Inner Constructor Methods
+	# Convenience constructor
+	Particle(pos::Vector) 			  = new(1., 1., pos, zeros(3), zeros(3), 0., 0.)
+	Particle(pos::Vector,vel::Vector) = new(1., 1., pos, vel, zeros(3), 0., 0.)
+
+	Particle(q, m, pos::Vector)       = new(q ,m , pos, zeros(3), zeros(3), 0., 0.)
+	Particle(q, m, pos::Vector, vel::Vector) = new(q, m, pos, vel, zeros(3), 		 
+                                                   .5*m*mag(vel)^2, 0)
+	
+	# TODO add custom pretty printing
 end
 
 # ╔═╡ 4e7112b2-e6a4-406c-adda-ff5e5baa6078
 begin
-	P1 = Particle(1,10,[-2,0,-10],[1,0,0],zeros(3)) 
-	P2 = Particle(1,10,[2,1,0],[-1,0,0],zeros(3))
-	P3 = Particle(1,100,zeros(3),zeros(3),zeros(3))
+	P1 = Particle(1,10,[-2,0,-10],[1,0,0]) 
+	P2 = Particle(1,100.,[2,1,0],[-1,0,0])
+	P3 = Particle(1,100,zeros(3),zeros(3))
 	particles = [P1,P2,P3]
 end
 
 # ╔═╡ 57f4f0ee-effd-4ffa-90fb-c3a9f0c86fc0
-# Define box size
-L = 100
+begin
+	# PARAMETERS
+	# Define box size
+	L = 100.0
+	
+	Δt 		  = .1
+	timesteps = 100
+	tf 		  = timesteps * Δt
+end
 
-# ╔═╡ 28bedfff-2689-47c4-ac40-cf63f5311b54
-
+# ╔═╡ 761317ee-bfb6-4e4d-b21b-d09eaef30333
+# Instantiate containers for calculated nergies
+# TODO: Change to file that can have new values concatenated in
+Us = Ks = zeros(timesteps, length(particles))
 
 # ╔═╡ 510aeb52-f74a-460d-8469-327f41178433
 function force(Pi::Particle,Pj::Particle)
@@ -68,29 +92,52 @@ function potential(Pi::Particle,Pj::Particle)
 	U			= (Pi.q*Pj.q)*disp/dist^2     	# Return calculated potential energy
 end
 
-# ╔═╡ a769305e-e912-4fd0-93e4-96c748a5a4bb
-function fpot(Pi::Particle,Pj::Particle, L::Float64)::tuple
-	displ       = mod(Pi.pos - Pj.pos, L/2)	  	# displacment (w/ PBC)
-	dist		= mag(disp)					  	# distance::scalar
-	F			= (Pi.q*Pj.q)*disp/dist^3     	# Return calculated force
-	U			= (Pi.q*Pj.q)*disp/dist^2     	# Return calculated potential
-	(F, U)										# :)
-end
-
 # ╔═╡ 4fb0f55b-98bd-48da-9e0e-55fccfe61165
 function kinetic(Pi::Particle)::Number
 	K = .5 * Pi.m * mag(Pi.vel)^2
 end
 
-# ╔═╡ f7bda44b-bf44-4fa2-828a-200e9fe788a1
-plt = scatter3d(
-	    1,
-	    xlim = (-10, 10),
-	    ylim = (-10, 10),
-	    zlim = (-10, 10),
-	    title = "Two +Ions",
-	    marker = 2,
-	)	
+# ╔═╡ a769305e-e912-4fd0-93e4-96c748a5a4bb
+function fpot(Pi::Particle, Pj::Particle, L::Float64)
+	disp        = Pi.pos - Pj.pos	  				# displacment (w/ PBC)
+	dist		= mod(mag(Pi.pos - Pj.pos), L/2)
+	F			= (Pi.q*Pj.q)*disp/dist^3     		# Return calculated force
+	U			= (Pi.q*Pj.q)/dist     				# Return calculated potential
+	(F, U)											# :)
+end
+
+# ╔═╡ 6f5b23c6-d38e-41df-aa78-9ab38fd4f9c4
+function step!(force::Function, potential::Function, Ps::Vector{Particle}, L::Float64)
+	# fpot must be a function returning a tuple with the force vector in the first position, and the interaction energy in the second.
+	
+	for Pi in Ps
+		# Update Acceleration
+		Fij::Vector = zeros(3)
+		Uij::Vector = zeros(1)
+		# Sum over the forces (taken from ΣF(...))
+		for Pj in Ps
+			if Pi ≠ Pj
+				Fij += force(Pi, Pj)
+				Uij += potential
+			end
+		end
+	
+		acct = Pi.acc	
+		Pi.acc = Fij/Pi.m
+	
+		# Update Velocity
+		Pi.vel = Pi.vel + .5*(Pi.acc + acct)*Δt 		  # Uses avg of acc over timestep
+	
+		# Update Position
+		Pi.pos = Pi.pos + Pi.vel*Δt + .5*(Pi.acc)*(Δt)^2. # Verlet
+	end
+end
+
+# ╔═╡ f8be6357-dc86-47e4-baac-719ed94b3655
+step!(force, potential, particles, L)
+
+# ╔═╡ 890ba6fd-e1c2-4ffb-b052-1d2546e0dd97
+
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1091,12 +1138,14 @@ version = "0.9.1+5"
 # ╠═a8889fc0-e059-11ec-2d6f-4184757da303
 # ╠═fa6b6d6c-601e-4aec-82dd-6983a978cfc5
 # ╠═4e7112b2-e6a4-406c-adda-ff5e5baa6078
+# ╠═761317ee-bfb6-4e4d-b21b-d09eaef30333
 # ╠═57f4f0ee-effd-4ffa-90fb-c3a9f0c86fc0
-# ╠═28bedfff-2689-47c4-ac40-cf63f5311b54
 # ╠═510aeb52-f74a-460d-8469-327f41178433
 # ╠═7d07b3b1-27e1-43ac-93be-d8d54c6fc2e1
 # ╠═4fb0f55b-98bd-48da-9e0e-55fccfe61165
 # ╠═a769305e-e912-4fd0-93e4-96c748a5a4bb
-# ╠═f7bda44b-bf44-4fa2-828a-200e9fe788a1
+# ╠═6f5b23c6-d38e-41df-aa78-9ab38fd4f9c4
+# ╠═f8be6357-dc86-47e4-baac-719ed94b3655
+# ╠═890ba6fd-e1c2-4ffb-b052-1d2546e0dd97
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
