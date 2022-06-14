@@ -15,14 +15,6 @@ begin
 	using Random
 end
 
-# ╔═╡ 62785712-e73e-4cc3-bb89-3403a270596e
-#Big TODO
-	# B.C.
-	# 
-
-# ╔═╡ 3fc2f5b8-de45-486b-9113-9c27db630cc0
-
-
 # ╔═╡ 9d57021b-7c63-4950-be74-efada8d030da
 begin
 	println("Initializing Global Parameters")
@@ -40,6 +32,12 @@ end
 # Load in Data
 data = eachrow(CSV.read("example.txt", DataFrame, header=3))
 
+# ╔═╡ b9c33efa-37fe-4690-8e81-e3bfd7cb1498
+# Create instances of ::Particle from data
+#particles = [Particle(1,1,[row.x,row.y,row.z], [row.vel_x,row.vel_y,row.vel_z],[0,0,0]) for row in data]
+#TODO?: create dict or file to hold ion properties
+#TODO?: for large data sets, stream data from file directly into constructor
+
 # ╔═╡ 37abb7c2-1151-44ed-9665-71e3a53273ec
 mutable struct Particle 		# Define Particle Type
 	# Charge
@@ -52,19 +50,13 @@ mutable struct Particle 		# Define Particle Type
 	acc::Vector
 end
 
-# ╔═╡ b9c33efa-37fe-4690-8e81-e3bfd7cb1498
-# Create instances of ::Particle from data
-particles = [Particle(1,1,[row.x,row.y,row.z], [row.vel_x,row.vel_y,row.vel_z],[0,0,0]) for row in data]
-#TODO?: create dict or file to hold ion properties
-#TODO?: for large data sets, stream data from file directly into constructor
-
 # ╔═╡ 57af05fc-a14e-460b-a7de-219e7772b473
-#begin
-#	P1 = Particle(1,10,[-2,0,-10],[0,0,0],[0,0,0]) 
-#	P2 = Particle(1,10,[2,1,0],[0,0,0],[0,0,0])
-#	P3 = Particle(1,100,[0,0,0],[0,0,0],[0,0,0])
-#	particles = [P1,P2,P3]
-#end
+begin
+	P1 = Particle(1,10,[-2,0,-10],[0,0,0],[0,0,0]) 
+	P2 = Particle(1,10,[2,1,0],[0,0,0],[0,0,0])
+	P3 = Particle(1,100,[0,0,0],[0,0,0],[0,0,0])
+	particles = [P1,P2,P3]
+end
 
 # ╔═╡ fe5555d1-b5ed-4b5e-94b1-f3d261599b41
 function step!(force::Function, Pi::Particle,Ps::Vector{Particle})
@@ -154,7 +146,7 @@ Plots = "~1.29.0"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.7.2"
+julia_version = "1.7.3"
 manifest_format = "2.0"
 
 [[deps.Adapt]]
@@ -1133,8 +1125,6 @@ version = "0.9.1+5"
 """
 
 # ╔═╡ Cell order:
-# ╠═62785712-e73e-4cc3-bb89-3403a270596e
-# ╠═3fc2f5b8-de45-486b-9113-9c27db630cc0
 # ╠═c3de270e-486d-44e2-b78d-daeb199c957a
 # ╠═9d57021b-7c63-4950-be74-efada8d030da
 # ╠═d11660bd-9039-490f-b65e-86b9e9eb4675
