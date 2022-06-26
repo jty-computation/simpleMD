@@ -73,6 +73,9 @@ end
 # TODO: Change to file that can have new values concatenated in
 UNet = KNet = zeros(timesteps)
 
+# ╔═╡ 8f5a6019-6612-480b-8480-e01ac8298e99
+
+
 # ╔═╡ 510aeb52-f74a-460d-8469-327f41178433
 function force(Pi::Particle,Pj::Particle)
 	# returns Coulomb force between two particles
@@ -99,6 +102,7 @@ function kinetic(Pi::Particle)::Number
 end
 
 # ╔═╡ a769305e-e912-4fd0-93e4-96c748a5a4bb
+<<<<<<< Updated upstream
 function fpot(Pi::Particle, Pj::Particle, L::Float64)
 	# Returns a tuple containing the force::vector and energy of interaction
 	disp        = Pi.pos - Pj.pos	  				# displacment (w/ PBC)
@@ -137,6 +141,25 @@ end
 
 # ╔═╡ f8be6357-dc86-47e4-baac-719ed94b3655
 step!(force, potential, particles, L)
+=======
+function fpot(Pi::Particle,Pj::Particle, L::Float64)::tuple
+	displ       = mod(Pi.pos - Pj.pos, L/2)	  	# displacment (w/ PBC)
+	dist		= mag(disp)					  	# distance::scalar
+	F			= (Pi.q*Pj.q)*disp/dist^3     	# Return calculated force
+	U			= (Pi.q*Pj.q)*disp/dist^2     	# Return calculated potential
+	(F, U)										# :)
+end
+
+# ╔═╡ f7bda44b-bf44-4fa2-828a-200e9fe788a1
+plt = scatter3d(
+	    1,
+	    xlim = (-10, 10),
+	    ylim = (-10, 10),
+	    zlim = (-10, 10),
+	    title = "Two +Ions",
+	    marker = 2,
+	)	
+>>>>>>> Stashed changes
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1142,6 +1165,11 @@ version = "0.9.1+5"
 # ╠═4e7112b2-e6a4-406c-adda-ff5e5baa6078
 # ╠═761317ee-bfb6-4e4d-b21b-d09eaef30333
 # ╠═57f4f0ee-effd-4ffa-90fb-c3a9f0c86fc0
+<<<<<<< Updated upstream
+=======
+# ╠═28bedfff-2689-47c4-ac40-cf63f5311b54
+# ╠═8f5a6019-6612-480b-8480-e01ac8298e99
+>>>>>>> Stashed changes
 # ╠═510aeb52-f74a-460d-8469-327f41178433
 # ╠═7d07b3b1-27e1-43ac-93be-d8d54c6fc2e1
 # ╠═4fb0f55b-98bd-48da-9e0e-55fccfe61165
