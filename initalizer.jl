@@ -6,7 +6,7 @@ using CSV
 using DataFrames
 using Random
 
-if isinteractive() 
+if isinteractive()
 	print("Enter desired number of particles: ")
 	const N = parse(Int64, readline())
 	print("Enter desired particle species: ")
@@ -16,14 +16,14 @@ if isinteractive()
 	print("Enter save-file: ")
   const savefile = readline()
 else
-	const N = parse(Int64,ARGS[1]) 
+	const N = parse(Int64,ARGS[1])
 	const S = ARGS[2]
 	const L = parse(Float64, ARGS[3])
 	const savefile = ARGS[4]
-end	
+end
 println("N: ", N, " S: ", S, " L: ", L)
 const gridres = Float64(1/10000)
-const Vmax    = 10		                          # Hardcoded :(	
+const Vmax    = 10		          # Max velocity in each direction. Hardcoded :(	
 println("gridres: ", gridres)
 
 spc = [S for i in 1:N]
@@ -35,10 +35,6 @@ println(df)
 
 
 touch(savefile)
-open(savefile, "w") do file 
+open(savefile, "w") do file
 	CSV.write(file, df, delim='	')
 end
-
-
-
-
