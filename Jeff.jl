@@ -20,7 +20,7 @@ mutable struct Particle # Define Particle Type
     pos::Vector{Float64}
     vel::Vector{Float64}
     acc::Vector{Float64}
-    acc0::Vector{Float64}   
+    acc0::Vector{Float64}
     # Energy
     #K::Float64 # Calc. frm (m,v),(funct <- particle) =>K
     U::Float64
@@ -73,7 +73,7 @@ end
 
 N=100;
 L=10.0;
-Ntimes=200;
+Ntimes=100000;
 
 initpos=Positions = L * rand(Float64, (N, 3));
 
